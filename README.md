@@ -13,7 +13,7 @@ indexed content. There is no any sophisticated logic, `Crabo` just
 captures information returned by content serving API or provided
 in meta-tags of HTML page such as Open Graph.
 
-# Why does Crabo accesses my site?
+# Why does Crabo access my site?
 
 **TL;DR**: your site was mentioned in ActivityPub document published
 in Fediverse.
