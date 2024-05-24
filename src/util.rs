@@ -1,6 +1,8 @@
 use url::Url;
 use fedineko_http_client::GenericClient;
 
+pub(crate) const CRABO_VERSION: &str = "0.3.1";
+
 /// Guesses content type for resource identified by `url`.
 /// If guessing by file extension fails, request to resources
 /// is performed with given `client`.

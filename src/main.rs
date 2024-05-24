@@ -15,12 +15,20 @@ use actix_web::middleware::Logger;
 use env_logger::{Env, init_from_env};
 use log::info;
 use crabo_model::{SnapRequest, SnapResponse};
-use fedineko_http_client::{GenericClient, HttpClientParameters, MaxHttpVersion, SuppressedClient};
+
+use fedineko_http_client::{
+    construct_user_agent,
+    GenericClient,
+    HttpClientParameters,
+    MaxHttpVersion,
+    SuppressedClient
+};
+
+use fedineko_url_utils::required_url_from_config;
 use proxydon_client::ProxydonClient;
 use crate::snapper::Clients;
 use crate::snapshot::SnapshotMaker;
-
-const CRABO_USER_AGENT: &str = "fedineko/crabo-0.2";
+use crate::util::CRABO_VERSION;
 
 struct SharedContext<'a> {
     snapper: Arc<SnapshotMaker<'a>>,
@@ -72,6 +80,18 @@ async fn main() -> std::io::Result<()> {
 
     let snapper = Arc::new(SnapshotMaker::new(youtube_api_key));
 
+    let server_url = required_url_from_config(
+        "FEDINEKO_URL",
+        "http://127.0.0.1",
+    );
+
+    let crabo_user_agent = construct_user_agent(
+        &server_url,
+        "crabo",
+        CRABO_VERSION,
+    );
+
+    info!("Fedineko URL: {server_url}");
     info!("Crabo listens on {}:{}", host, port);
     info!("Proxydon endpoint: {proxydon_endpoint}");
 
@@ -83,13 +103,13 @@ async fn main() -> std::io::Result<()> {
                 proxydon_client: ProxydonClient::new(&proxydon_endpoint),
 
                 generic_client: GenericClient::new_with_user_agent(
-                    CRABO_USER_AGENT
+                    &crabo_user_agent
                 ),
 
                 no_follow_client: GenericClient::new_with_parameters(
                     HttpClientParameters {
                         extra_headers: vec![
-                            GenericClient::user_agent_header(CRABO_USER_AGENT)
+                            GenericClient::user_agent_header(&crabo_user_agent)
                         ],
 
                         middleware: None,
@@ -99,7 +119,7 @@ async fn main() -> std::io::Result<()> {
                 ),
 
                 suppressed_client: SuppressedClient::new(
-                    GenericClient::new_with_user_agent(CRABO_USER_AGENT),
+                    GenericClient::new_with_user_agent(&crabo_user_agent),
                 ),
             },
         };

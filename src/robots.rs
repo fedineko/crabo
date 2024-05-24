@@ -78,8 +78,9 @@ impl RobotsValidator {
             robots_txt_permissions: TypedCache::new(
                 "robots_txt_permissions",
                 Some(512),
-                // will keep it in remote cache for a week
-                Duration::try_days(7),
+                // TODO: make these two parameters below configurable
+                // will keep it in remote cache for one day
+                Duration::try_days(1),
                 // will keep in local cache for a couple of hours
                 Duration::try_hours(2),
             ),
